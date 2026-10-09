@@ -8,6 +8,7 @@ import MovieDetailsPage from './pages/MovieDetailsPage'
 import AuthPage from './pages/AuthPage'
 import NetworkStatus from './components/NetworkStatus'
 import InfoPage from './pages/InfoPage'
+import SiteFooter from './components/Layout/SiteFooter'
 
 type Route =
   | { page: 'home' }
@@ -95,6 +96,7 @@ function App() {
       {route.page === 'my-list' && <MyListPage />}
       {route.page === 'about' && <InfoPage page="about" />}
       {route.page === 'support' && <InfoPage page="support" />}
+      <SiteFooter />
     </div>
   )
 }

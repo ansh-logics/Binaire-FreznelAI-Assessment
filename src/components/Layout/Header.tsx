@@ -98,12 +98,7 @@ const Header: React.FC = () => {
 
                     <span className="text-zinc-600">|</span>
 
-                    <button
-                        type="button"
-                        className="rounded px-2 py-1 text-[#8f98a0] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
-                    >
-                        English ▼
-                    </button>
+                    <span className="px-2 py-1 text-[#8f98a0]">English</span>
                 </div>
             </div>
         </header>
