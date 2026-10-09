@@ -1,29 +1,27 @@
-import Movie from "../models/Movie"
+import Movie, { type TmdbMovieRaw } from '../models/Movie'
 
-type TmdbMovie = {
-    id: number
-    title: string
-    overview: string
-    release_date: string
-    genre_ids: number[]
-    poster_path: string | null
-    backdrop_path: string | null
+type TmdbMovieResponse = {
+    page: number
+    total_pages: number
+    total_results: number
+    results: TmdbMovieRaw[]
 }
+
+type MoviePage = {
+    movies: Movie[]
+    page: number
+    totalPages: number
+    totalResults: number
+}
+
 class TmdbClient {
-    private toMovie(movie: TmdbMovie): Movie {
-        return new Movie(
-            movie.id,
-            movie.title,
-            movie.overview,
-            movie.release_date,
-            movie.genre_ids,
-            movie.backdrop_path,
-            movie.poster_path
-        )
-    }
     private readonly baseUrl = 'https://api.themoviedb.org/3'
     private readonly readAccessToken =
         import.meta.env.VITE_TMDB_READ_ACCESS_TOKEN
+
+    private toMovie(movie: TmdbMovieRaw): Movie {
+        return new Movie(movie)
+    }
 
     private async request<T>(path: string): Promise<T> {
         if (!this.readAccessToken) {
@@ -43,41 +41,33 @@ class TmdbClient {
 
         return response.json() as Promise<T>
     }
-    async getNowPlayingMovies(page = 1): Promise<{ movies: TmdbMovie[], page: number, totalPages: number, totalResults: number }> {
-        const response = await this.request<{
-            page: number
-            results: TmdbMovie[]
-            total_pages: number
-            total_results: number
-        }>(`/movie/now_playing?language=en-US&page=${page}`);
-        return { movies: response.results, page: response.page, totalPages: response.total_pages, totalResults: response.total_results }
+
+    private async getMoviePage(path: string): Promise<MoviePage> {
+        const response = await this.request<TmdbMovieResponse>(path)
+
+        return {
+            movies: response.results.map((movie) => this.toMovie(movie)),
+            page: response.page,
+            totalPages: response.total_pages,
+            totalResults: response.total_results,
+        }
     }
-    async getUpcomingMovies(page = 1): Promise<{ movies: TmdbMovie[], page: number, totalPages: number, totalResults: number }> {
-        const response = await this.request<{
-            page: number
-            results: TmdbMovie[]
-            total_pages: number
-            total_results: number
-        }>(`/movie/upcoming?language=en-US&page=${page}`);
-        return { movies: response.results, page: response.page, totalPages: response.total_pages, totalResults: response.total_results }
+
+    public getNowPlayingMovies(page = 1) {
+        return this.getMoviePage(`/movie/now_playing?language=en-US&page=${page}`)
     }
-    async getPopularMovies(page = 1): Promise<{ movies: TmdbMovie[], page: number, totalPages: number, totalResults: number }> {
-        const response = await this.request<{
-            page: number
-            results: TmdbMovie[]
-            total_pages: number
-            total_results: number
-        }>(`/movie/popular?language=en-US&page=${page}`);
-        return { movies: response.results, page: response.page, totalPages: response.total_pages, totalResults: response.total_results }
+
+    public getUpcomingMovies(page = 1) {
+        return this.getMoviePage(`/movie/upcoming?language=en-US&page=${page}`)
     }
-    async getTopRatedMovies(page = 1): Promise<{ movies: TmdbMovie[], page: number, totalPages: number, totalResults: number }> {
-        const response = await this.request<{
-            page: number
-            results: TmdbMovie[]
-            total_pages: number
-            total_results: number
-        }>(`/movie/top_rated?language=en-US&page=${page}`);
-        return { movies: response.results.map((movie) => this.toMovie(movie)), page: response.page, totalPages: response.total_pages, totalResults: response.total_results }
+
+    public getPopularMovies(page = 1) {
+        return this.getMoviePage(`/movie/popular?language=en-US&page=${page}`)
+    }
+
+    public getTopRatedMovies(page = 1) {
+        return this.getMoviePage(`/movie/top_rated?language=en-US&page=${page}`)
     }
 }
-export default TmdbClient;
+
+export default TmdbClient

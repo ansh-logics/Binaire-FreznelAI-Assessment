@@ -1,19 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  font-family: Arial, Helvetica, sans-serif;
-  color: #f1f5f9;
-  background: #020617;
-  font-synthesis: none;
+  font-family: "Motiva Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: #c6d4df;
+  background-color: #0e141b;
+  color-scheme: dark;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background: radial-gradient(circle at 50% 0%, #1b2838 0%, #0e141b 700px);
 }
 
-button,
-input {
-  font: inherit;
+/* Custom Scrollbar to match Steam */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #101822;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d4450;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #66c0f4;
+}
+
+/* Keyframe animations for transitions */
+@keyframes steam-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes steam-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(102, 192, 244, 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(102, 192, 244, 0.5);
+  }
+}
+
+.animate-fade-in {
+  animation: steam-fade-in 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.steam-target-highlight:target {
+  outline: 2px solid #66c0f4;
+  outline-offset: 4px;
+  background-color: rgba(102, 192, 244, 0.08);
 }
