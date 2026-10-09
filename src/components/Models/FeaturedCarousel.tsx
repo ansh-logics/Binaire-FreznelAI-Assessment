@@ -12,7 +12,9 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0)
     const [screenshots, setScreenshots] = useState<string[]>([])
-    const [screenshotsMovieId, setScreenshotsMovieId] = useState<number | null>(null)
+    const [screenshotsMovieId, setScreenshotsMovieId] = useState<number | null>(
+        null,
+    )
     const [isCarouselPaused, setIsCarouselPaused] = useState(false)
 
     const currentMovie = movies[currentIndex]
@@ -24,7 +26,9 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
     }, [currentIndex, movies.length])
 
     useEffect(() => {
-        if (movies.length < 2) return
+        if (movies.length < 2 || isCarouselPaused) {
+            return
+        }
 
         const timer = window.setInterval(() => {
             setCurrentIndex((previousIndex) => {
@@ -34,16 +38,18 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
         }, 6000)
 
         return () => window.clearInterval(timer)
-    }, [movies.length])
+    }, [movies.length, isCarouselPaused])
 
     useEffect(() => {
-        if (!currentMovie) return
+        if (!currentMovie) {
+            return
+        }
 
         let isActive = true
 
+        setActiveScreenshotIndex(0)
         setScreenshots([])
         setScreenshotsMovieId(null)
-        setActiveScreenshotIndex(0)
 
         tmdbClient
             .getMovieBackdrops(currentMovie.id)
@@ -65,7 +71,10 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
         }
     }, [currentMovie?.id])
 
-    if (!currentMovie) return null;
+    if (!currentMovie) {
+        return null
+    }
+
     const currentMovieScreenshots =
         screenshotsMovieId === currentMovie.id ? screenshots : []
 
@@ -110,14 +119,14 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
                 </p>
             </div>
 
-            <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded bg-[#0a141d] shadow-[0_0_20px_rgba(0,0,0,0.8)] lg:flex-row">
-                <div className="relative min-h-[260px] flex-1 bg-black lg:min-h-0 lg:w-[65%]">
+            <div className="relative flex min-h-[380px] flex-col overflow-hidden rounded bg-[#0a141d] shadow-[0_0_20px_rgba(0,0,0,0.8)] lg:h-[520px] lg:min-h-0 lg:flex-row">
+                <div className="relative h-72 bg-black sm:h-96 lg:h-full lg:w-[65%] lg:flex-none">
                     {mainImageUrl ? (
                         <img
                             key={`${currentMovie.id}-${activeScreenshotIndex}`}
                             src={mainImageUrl}
                             alt={`${currentMovie.title} preview`}
-                            className="h-full w-full object-cover animate-fade-in"
+                            className="absolute inset-0 h-full w-full object-cover animate-fade-in"
                         />
                     ) : (
                         <div className="flex h-full items-center justify-center bg-slate-800 text-slate-500">
@@ -126,58 +135,75 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
                     )}
                 </div>
 
-                <div className="flex w-full flex-col justify-between bg-gradient-to-b from-[#0f1922] to-[#070b10] p-5 lg:w-[35%]">
-                    <div>
-                        <h3 className="text-xl font-bold text-white">
-                            {currentMovie.title}
-                        </h3>
+                <div className="w-full bg-gradient-to-b from-[#0f1922] to-[#070b10] p-5 lg:h-full lg:w-[35%] lg:flex-none">
+                    <div className="flex h-full flex-col">
+                        <div>
+                            <h3 className="min-h-14 line-clamp-2 text-xl font-bold text-white">
+                                {currentMovie.title}
+                            </h3>
 
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                            {screenshots.length > 0 ? (
-                                screenshots.slice(0, 4).map((screenshot, index) => (
-                                    <button
-                                        key={screenshot}
-                                        type="button"
-                                        onClick={() => setActiveScreenshotIndex(index)}
-                                        aria-label={`Show preview ${index + 1} for ${currentMovie.title}`}
-                                        aria-pressed={activeScreenshotIndex === index}
-                                        className={`overflow-hidden rounded border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${activeScreenshotIndex === index
-                                            ? 'border-sky-400'
-                                            : 'border-slate-700 hover:border-sky-400'
-                                            }`}
-                                    >
-                                        <img
-                                            src={screenshot}
-                                            alt=""
-                                            className="h-24 w-full object-cover"
-                                        />
-                                    </button>
-                                ))
-                            ) : (
-                                <p className="col-span-2 text-xs text-slate-500">
-                                    Extra previews are unavailable for this movie.
-                                </p>
-                            )}
+                            <div className="mt-4 grid h-[196px] grid-cols-2 grid-rows-2 gap-3">
+                                {[0, 1, 2, 3].map((index) => {
+                                    const screenshot =
+                                        currentMovieScreenshots[index]
+
+                                    return (
+                                        <button
+                                            key={screenshot ?? index}
+                                            type="button"
+                                            disabled={!screenshot}
+                                            onClick={() =>
+                                                setActiveScreenshotIndex(index)
+                                            }
+                                            aria-label={
+                                                screenshot
+                                                    ? `Show preview ${index + 1} for ${currentMovie.title}`
+                                                    : undefined
+                                            }
+                                            aria-pressed={
+                                                Boolean(screenshot) &&
+                                                activeScreenshotIndex === index
+                                            }
+                                            className={`overflow-hidden rounded border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${screenshot
+                                                    ? activeScreenshotIndex === index
+                                                        ? 'border-sky-400'
+                                                        : 'border-slate-700 hover:border-sky-400'
+                                                    : 'cursor-default border-slate-800 bg-slate-800'
+                                                }`}
+                                        >
+                                            {screenshot && (
+                                                <img
+                                                    src={screenshot}
+                                                    alt=""
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            <p className="mt-4 h-[60px] overflow-hidden text-xs leading-5 text-[#c6d4df]">
+                                {currentMovie.overview ||
+                                    'Now available to explore.'}
+                            </p>
+
+                            <div className="mt-3 flex h-6 flex-wrap gap-1 overflow-hidden">
+                                <span className="rounded bg-[#384959]/60 px-2 py-0.5 text-[11px] text-[#66c0f4]">
+                                    Released: {currentMovie.releaseYear}
+                                </span>
+
+                                <span className="rounded bg-[#384959]/60 px-2 py-0.5 text-[11px] text-slate-300">
+                                    {currentMovie.genres[0] || 'Featured'}
+                                </span>
+                            </div>
                         </div>
 
-                        <p className="mt-4 line-clamp-3 text-xs leading-relaxed text-[#c6d4df]">
-                            {currentMovie.overview || 'Now available to explore.'}
-                        </p>
-
-                        <div className="mt-3 flex flex-wrap gap-1">
-                            <span className="rounded bg-[#384959]/60 px-2 py-0.5 text-[11px] text-[#66c0f4]">
-                                Released: {currentMovie.releaseYear}
-                            </span>
-
-                            <span className="rounded bg-[#384959]/60 px-2 py-0.5 text-[11px] text-slate-300">
-                                {currentMovie.genres[0] || 'Featured'}
-                            </span>
-                        </div>
-
-                        <div className="mt-4 border-t border-slate-800 pt-3">
+                        <div className="mt-auto border-t border-slate-800 pt-3">
                             {currentMovie.vote_average > 0 && (
                                 <p className="text-xs text-[#66c0f4]">
-                                    TMDB score: {currentMovie.vote_average.toFixed(1)} / 10
+                                    TMDB score:{' '}
+                                    {currentMovie.vote_average.toFixed(1)} / 10
                                 </p>
                             )}
 
@@ -222,8 +248,8 @@ const FeaturedCarousel = ({ movies }: FeaturedCarouselProps) => {
                         aria-label={`Go to slide ${index + 1}: ${movie.title}`}
                         aria-current={index === currentIndex}
                         className={`h-2 rounded transition-all ${index === currentIndex
-                            ? 'w-8 bg-[#66c0f4]'
-                            : 'w-3 bg-slate-700 hover:bg-slate-500'
+                                ? 'w-8 bg-[#66c0f4]'
+                                : 'w-3 bg-slate-700 hover:bg-slate-500'
                             }`}
                     />
                 ))}

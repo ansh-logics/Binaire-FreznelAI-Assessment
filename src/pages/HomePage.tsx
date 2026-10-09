@@ -4,6 +4,7 @@ import StoreSidebar from "../components/Layout/StoreSidebar"
 import MovieCard from "../components/Models/MovieCard"
 import { useRef } from 'react'
 import useInfiniteScroll from '../hooks/useInfiniteScroll'
+import MoviePromo from '../components/Models/MoviePromo'
 
 const HomePage = () => {
     const { movies, isLoading, error, hasMore, loadMore } = useNowPlayingMovies()
@@ -24,7 +25,12 @@ const HomePage = () => {
                 </div>
             )}
 
-            {movies.length > 0 && <FeaturedCarousel movies={movies.slice(0, 10)} />}
+            {movies.length > 0 && (
+                <>
+                    <MoviePromo movie={movies[0]} />
+                    <FeaturedCarousel movies={movies.slice(0, 10)} />
+                </>
+            )}
 
             <div className="mt-8 flex gap-8">
                 <StoreSidebar />

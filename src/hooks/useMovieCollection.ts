@@ -3,20 +3,51 @@ import TmdbClient from '../api/TmdbClient'
 import Movie from '../models/Movie'
 import { PaginationController } from '../models/paginationController'
 
-const useMovieSearch = (query: string) => {
+export type MovieCollection =
+    | 'nowPlaying'
+    | 'popular'
+    | 'upcoming'
+    | 'topRated'
+
+type MoviePage = {
+    movies: Movie[]
+    page: number
+    totalPages: number
+    totalResults: number
+}
+
+const getCollectionPage = (
+    client: TmdbClient,
+    collection: MovieCollection,
+    page: number,
+): Promise<MoviePage> => {
+    switch (collection) {
+        case 'popular':
+            return client.getPopularMovies(page)
+        case 'upcoming':
+            return client.getUpcomingMovies(page)
+        case 'topRated':
+            return client.getTopRatedMovies(page)
+        case 'nowPlaying':
+        default:
+            return client.getNowPlayingMovies(page)
+    }
+}
+
+const useMovieCollection = (collection: MovieCollection) => {
     const [movies, setMovies] = useState<Movie[]>([])
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [hasMore, setHasMore] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
 
     const client = useRef(new TmdbClient()).current
     const pagination = useRef(new PaginationController()).current
-    const activeQuery = useRef('')
+    const activeCollection = useRef<MovieCollection>(collection)
 
-    const normalizedQuery = query.trim()
+    activeCollection.current = collection
 
     const loadMore = useCallback(async () => {
-        if (!normalizedQuery || !pagination.startLoading()) {
+        if (!pagination.startLoading()) {
             return
         }
 
@@ -24,12 +55,13 @@ const useMovieSearch = (query: string) => {
         setError(null)
 
         try {
-            const result = await client.getSearchMovies(
-                normalizedQuery,
+            const result = await getCollectionPage(
+                client,
+                collection,
                 pagination.page,
             )
 
-            if (activeQuery.current !== normalizedQuery) {
+            if (activeCollection.current !== collection) {
                 return
             }
 
@@ -46,7 +78,7 @@ const useMovieSearch = (query: string) => {
             setHasMore(pagination.hasMore)
             pagination.nextPage()
         } catch (error) {
-            if (activeQuery.current !== normalizedQuery) {
+            if (activeCollection.current !== collection) {
                 return
             }
 
@@ -54,27 +86,24 @@ const useMovieSearch = (query: string) => {
             setError(
                 error instanceof Error
                     ? error.message
-                    : 'Unable to search movies',
+                    : 'Unable to load movies',
             )
         } finally {
-            if (activeQuery.current === normalizedQuery) {
+            if (activeCollection.current === collection) {
                 setIsLoading(false)
             }
         }
-    }, [client, normalizedQuery, pagination])
+    }, [client, collection, pagination])
 
     useEffect(() => {
-        activeQuery.current = normalizedQuery
         pagination.reset()
 
         setMovies([])
         setError(null)
-        setHasMore(Boolean(normalizedQuery))
+        setHasMore(true)
 
-        if (normalizedQuery) {
-            void loadMore()
-        }
-    }, [loadMore, normalizedQuery, pagination])
+        void loadMore()
+    }, [collection, loadMore, pagination])
 
     return {
         movies,
@@ -85,4 +114,4 @@ const useMovieSearch = (query: string) => {
     }
 }
 
-export default useMovieSearch
+export default useMovieCollection
