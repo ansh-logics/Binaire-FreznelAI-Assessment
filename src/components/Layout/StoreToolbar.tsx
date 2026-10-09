@@ -11,19 +11,29 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
         e.preventDefault()
         if (onSearch) onSearch(searchValue)
     }
+    const navigationItems = [
+        { label: 'FOR YOU', href: '#home' },
+        { label: 'NEW RELEASES', href: '#browse?tab=nowPlaying' },
+        { label: 'GENRES', href: '#browse' },
+        { label: 'TOP RATED', href: '#browse?tab=topRated' },
+        { label: 'UPCOMING', href: '#browse?tab=upcoming' },
+        { label: 'MY LIST', href: '#auth?mode=signin' },
+    ]
 
     return (
         <div className="w-full bg-gradient-to-r from-[#20364d] via-[#1d4263] to-[#172d42] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-1.5 sm:px-6">
-                <nav aria-label="Store Submenu" className="overflow-x-auto py-1">
+            <div
+                className="mx-auto flex max-w-6xl flex-nowrap items-center gap-3 px-4 py-1.5 sm:px-6">
+                <nav aria-label="Store Submenu"
+                    className="min-w-0 flex-1 overflow-x-auto py-1">
                     <ul className="flex items-center gap-1 text-xs font-medium text-[#dcdedf]">
-                        {['Your Store', 'New & Noteworthy', 'Categories', 'Points Shop', 'News', 'Labs'].map((item) => (
-                            <li key={item}>
+                        {navigationItems.map((item) => (
+                            <li key={item.label}>
                                 <a
-                                    href={`#${item.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                                    href={item.href}
                                     className="rounded px-2.5 py-1.5 transition-all hover:bg-[#316282] hover:text-white active:bg-[#183a53] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
                                 >
-                                    {item}
+                                    {item.label}
                                 </a>
                             </li>
                         ))}
@@ -33,7 +43,7 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                 <form
                     onSubmit={handleSubmit}
                     role="search"
-                    className="group flex h-8 items-center rounded-sm bg-[#316282]/80 px-2 shadow-inner transition-all duration-150 focus-within:bg-[#16202d] focus-within:ring-2 focus-within:ring-[#66c0f4]"
+                    className="group flex h-8 shrink-0 items-center rounded-sm bg-[#316282]/80 px-2 shadow-inner transition-all duration-150 focus-within:bg-[#16202d] focus-within:ring-2 focus-within:ring-[#66c0f4]"
                 >
                     <label htmlFor="steam-search" className="sr-only">
                         Search the store

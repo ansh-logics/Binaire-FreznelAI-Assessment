@@ -34,7 +34,7 @@ body {
 }
 
 /* Keyframe animations for transitions */
-@keyframes steam-fade-in {
+@keyframes movie-fade-in {
   from {
     opacity: 0;
     transform: scale(0.99);
@@ -46,7 +46,7 @@ body {
   }
 }
 
-@keyframes steam-glow {
+@keyframes movie-glow {
 
   0%,
   100% {
@@ -62,7 +62,7 @@ body {
   animation: steam-fade-in 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.steam-target-highlight:target {
+.movie-target-highlight:target {
   outline: 2px solid #66c0f4;
   outline-offset: 4px;
   background-color: rgba(102, 192, 244, 0.08);

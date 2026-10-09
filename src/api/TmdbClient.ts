@@ -6,6 +6,12 @@ type TmdbMovieResponse = {
     total_results: number
     results: TmdbMovieRaw[]
 }
+type TmdbMovieImagesResponse = {
+    backdrops: Array<{
+        file_path: string
+        width: number
+    }>
+}
 
 type MoviePage = {
     movies: Movie[]
@@ -13,7 +19,10 @@ type MoviePage = {
     totalPages: number
     totalResults: number
 }
-
+type TmdbMovieDetailResponse = Omit<TmdbMovieRaw, 'genre_ids'> & {
+    genre_ids?: number[]
+    genres?: Array<{ id: number }>
+}
 class TmdbClient {
     private readonly baseUrl = 'https://api.themoviedb.org/3'
     private readonly readAccessToken =
@@ -67,6 +76,51 @@ class TmdbClient {
 
     public getTopRatedMovies(page = 1) {
         return this.getMoviePage(`/movie/top_rated?language=en-US&page=${page}`)
+    }
+    public async getMovieDetails(id: number): Promise<Movie> {
+        if (!Number.isInteger(id) || id <= 0) {
+            throw new Error('Invalid movie ID')
+        }
+
+        const movie = await this.request<TmdbMovieDetailResponse>(
+            `/movie/${id}?language=en-US`,
+        )
+
+        return new Movie({
+            ...movie,
+            genre_ids: movie.genre_ids ?? movie.genres?.map((genre) => genre.id) ?? [],
+        })
+    }
+    public getSearchMovies(query: string, page = 1) {
+        const normalizedQuery = query.trim()
+
+        if (!normalizedQuery) {
+            return Promise.resolve({
+                movies: [],
+                page: 1,
+                totalPages: 0,
+                totalResults: 0,
+            })
+        }
+
+        const encodedQuery = encodeURIComponent(normalizedQuery)
+
+        return this.getMoviePage(
+            `/search/movie?language=en-US&query=${encodedQuery}&page=${page}`,
+        )
+    }
+    async getMovieBackdrops(movieId: number): Promise<string[]> {
+        const response = await this.request<TmdbMovieImagesResponse>(
+            `/movie/${movieId}/images`
+        )
+
+        return response.backdrops
+            .sort((first, second) => second.width - first.width)
+            .slice(0, 4)
+            .map(
+                (backdrop) =>
+                    `https://image.tmdb.org/t/p/w780${backdrop.file_path}`
+            )
     }
 }
 
