@@ -1,103 +1,24 @@
 
-# Solution Notes
+# Solution
 
-## Problem 1: The starter project was empty
+The starter repository mostly had the structure, so first I made the app runnable with React, TypeScript, Vite and Tailwind.
 
-The repository already had the folder structure, but most of the important files were empty. So the first thing I had to do was make the project runnable without changing the given structure.
+The main thing I understood from the task was that the reference was a game store UI but the API data was for movies. I did not want to copy game content into it, so I used the reference for the layout and interaction ideas and changed the content into a movie discovery product.
 
-## Solution
+For example, game price and reviews do not make sense for a movie browser, so I used release dates, genres and TMDB ratings instead. The UI is made with custom React components, Tailwind and CSS instead of a UI component library.
 
-I set up React, TypeScript, Vite and Tailwind around the existing folders.
+Main things I built:
 
-I kept separate folders for API calls, models, hooks, layout components, pages and utilities. This made it easier to add features without putting everything inside one component.
-
----
-
-## Problem 2: The reference was Steam, but the API was TMDB
-
-The UI reference was based on Steam, but the task asked to use TMDB. TMDB gives movie data, not game data.
-
-## Solution
-
-I used Steam as the UI and interaction reference, but used TMDB for real movie data like titles, descriptions, genres, ratings, posters and backdrop images.
-
-So the project is called **Game Store**. It has a Steam-inspired layout, but it does not pretend that TMDB movies are real Steam games.
-
----
-
-## Problem 3: Building the UI within limited time
-
-There was limited time remaining, so I needed to focus on the features that matter most instead of spending too much time setting up extra libraries.
-
-## Solution
-
-Shadcn was allowed, but I decided to build the main UI components myself with React, Tailwind and CSS.
-
-This helped me control the layout and interactions properly, especially for the featured carousel, movie cards, navigation, focus states and responsive behaviour.
-
-The main parts built are:
-
-- Header and store navigation
-- Search UI
-- Featured movie carousel
-- Previous and next carousel controls
-- Carousel dot indicators
-- TMDB movie cards
-- Sidebar navigation
-- Responsive layout
+- TMDB client and Movie model class
+- Featured movie carousel with controls, thumbnails and pause on interaction
+- Search, genre filtering and movie detail pages
+- Manual pagination and lazy loading without an external library
+- Firebase sign up, login and My List
+- Offline status and cached TMDB responses
 - Hover, focus, active and target states
+- About, Support and footer
 
----
+For Home, I kept the movie list limited so it works as a landing page. Browse is where users can keep exploring with pagination and lazy loading.
 
-## Problem 4: Managing TMDB data cleanly
+I also ran `npm run build` before submission.
 
-TMDB gives raw JSON data. I did not want UI components to directly depend on raw API fields everywhere.
-
-## Solution
-
-I created a `Movie` model class which converts raw TMDB data into values that are easier to use in the UI.
-
-For example, the model handles:
-
-- Release year
-- Genre names
-- Poster URL
-- Backdrop URL
-- TMDB score
-
-The `TmdbClient` class handles API calls and converts raw TMDB responses into `Movie` objects.
-
----
-
-## Problem 5: Pagination and loading more movies
-
-Loading every movie at once is not efficient and makes the page heavier.
-
-## Solution
-
-I created a `PaginationController` class to manage:
-
-- Current page
-- Total pages
-- Loading state
-- Whether more movies are available
-
-This prevents duplicate requests and is used as the base for manual pagination and lazy loading.
-
----
-
-## Verification
-
-I checked that the project builds successfully using:
-
-```bash
-npm run build
-```
-
-TMDB movie data is also loading successfully in the browser.
-
----
-
-## Video walkthrough
-
-I will add the short build walkthrough video here after uploading it. The video shows the starting point, the work done, and the time remaining during the assessment.
