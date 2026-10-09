@@ -9,12 +9,48 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
     const [searchValue, setSearchValue] = useState('')
     const [isGenresOpen, setIsGenresOpen] = useState(false)
 
+    const currentHash = window.location.hash || '#home'
+    const currentParams = new URLSearchParams(currentHash.split('?')[1] ?? '')
+    const currentTab = currentParams.get('tab') ?? 'nowPlaying'
+    const isSearchRoute = currentParams.has('q')
+    const isGenreRoute = currentParams.has('genre')
+
     const navigationItems = [
-        { label: 'FOR YOU', href: '#home' },
-        { label: 'NEW RELEASES', href: '#browse?tab=nowPlaying' },
-        { label: 'TOP RATED', href: '#browse?tab=topRated' },
-        { label: 'UPCOMING', href: '#browse?tab=upcoming' },
-        { label: 'MY LIST', href: '#my-list' },
+        {
+            label: 'FOR YOU',
+            href: '#home',
+            isActive: currentHash === '#home' || currentHash === '',
+        },
+        {
+            label: 'NEW RELEASES',
+            href: '#browse?tab=nowPlaying',
+            isActive:
+                currentHash.startsWith('#browse') &&
+                currentTab === 'nowPlaying' &&
+                !isSearchRoute &&
+                !isGenreRoute,
+        },
+        {
+            label: 'TOP RATED',
+            href: '#browse?tab=topRated',
+            isActive:
+                currentHash.startsWith('#browse') &&
+                currentTab === 'topRated' &&
+                !isSearchRoute,
+        },
+        {
+            label: 'UPCOMING',
+            href: '#browse?tab=upcoming',
+            isActive:
+                currentHash.startsWith('#browse') &&
+                currentTab === 'upcoming' &&
+                !isSearchRoute,
+        },
+        {
+            label: 'MY LIST',
+            href: '#my-list',
+            isActive: currentHash === '#my-list',
+        },
     ]
 
     const genres = Object.entries(TMDB_GENRES)
@@ -24,19 +60,24 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
         onSearch?.(searchValue)
     }
 
+    const getNavClassName = (isActive: boolean) => {
+        return `rounded px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4] ${isActive
+                ? 'bg-[#316282] text-white'
+                : 'hover:bg-[#316282] hover:text-white active:bg-[#183a53]'
+            }`
+    }
+
     return (
         <div className="relative z-40 w-full bg-gradient-to-r from-[#20364d] via-[#1d4263] to-[#172d42] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-            <div className="mx-auto flex max-w-6xl flex-nowrap items-center gap-3 px-4 py-1.5 sm:px-6">
-                <nav
-                    aria-label="Movie navigation"
-                    className="min-w-0 flex-1 overflow-x-auto py-1 lg:overflow-visible"
-                >
-                    <ul className="flex items-center gap-1 whitespace-nowrap text-xs font-medium text-[#dcdedf]">
+            <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2 sm:flex-row sm:items-center sm:gap-3 sm:px-6">
+                <nav aria-label="Movie navigation" className="flex-1">
+                    <ul className="flex flex-wrap items-center gap-1 text-xs font-medium text-[#dcdedf] sm:flex-nowrap sm:whitespace-nowrap">
                         {navigationItems.slice(0, 2).map((item) => (
                             <li key={item.label}>
                                 <a
                                     href={item.href}
-                                    className="rounded px-2.5 py-1.5 transition hover:bg-[#316282] hover:text-white active:bg-[#183a53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                                    aria-current={item.isActive ? 'page' : undefined}
+                                    className={getNavClassName(item.isActive)}
                                 >
                                     {item.label}
                                 </a>
@@ -68,10 +109,12 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                                 aria-expanded={isGenresOpen}
                                 aria-haspopup="menu"
                                 aria-controls="genre-menu"
-                                onClick={() => setIsGenresOpen((isOpen) => !isOpen)}
-                                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1.5 transition ... focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4] ${isGenresOpen
-                                    ? 'bg-[#316282] text-white'
-                                    : 'hover:bg-[#316282] hover:text-white'
+                                onClick={() =>
+                                    setIsGenresOpen((isOpen) => !isOpen)
+                                }
+                                className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4] ${isGenresOpen || isGenreRoute
+                                        ? 'bg-[#316282] text-white'
+                                        : 'hover:bg-[#316282] hover:text-white active:bg-[#183a53]'
                                     }`}
                             >
                                 <span>GENRES</span>
@@ -96,14 +139,16 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                                     id="genre-menu"
                                     role="menu"
                                     aria-label="Browse movies by genre"
-                                    className="absolute left-0 top-full mt-2 grid w-64 grid-cols-2 gap-1 rounded border border-[#40617c] bg-[#172d42] p-2 shadow-2xl"
+                                    className="absolute left-0 top-full z-50 mt-2 grid w-64 grid-cols-2 gap-1 rounded border border-[#40617c] bg-[#172d42] p-2 shadow-2xl"
                                 >
                                     {genres.map(([genreId, genreName]) => (
                                         <li key={genreId} role="none">
                                             <a
                                                 href={`#browse?genre=${genreId}`}
                                                 role="menuitem"
-                                                onClick={() => setIsGenresOpen(false)}
+                                                onClick={() =>
+                                                    setIsGenresOpen(false)
+                                                }
                                                 className="block rounded px-3 py-2 text-xs text-slate-200 transition hover:bg-[#316282] hover:text-white focus-visible:bg-[#316282] focus-visible:text-white focus-visible:outline-none"
                                             >
                                                 {genreName}
@@ -118,7 +163,8 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                             <li key={item.label}>
                                 <a
                                     href={item.href}
-                                    className="rounded px-2.5 py-1.5 transition hover:bg-[#316282] hover:text-white active:bg-[#183a53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                                    aria-current={item.isActive ? 'page' : undefined}
+                                    className={getNavClassName(item.isActive)}
                                 >
                                     {item.label}
                                 </a>
@@ -130,7 +176,7 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                 <form
                     onSubmit={handleSubmit}
                     role="search"
-                    className="group flex h-8 shrink-0 items-center rounded-sm bg-[#316282]/80 px-2 shadow-inner transition focus-within:bg-[#16202d] focus-within:ring-2 focus-within:ring-[#66c0f4]"
+                    className="group flex h-8 w-full items-center rounded-sm bg-[#316282]/80 px-2 shadow-inner transition focus-within:bg-[#16202d] focus-within:ring-2 focus-within:ring-[#66c0f4] sm:w-auto"
                 >
                     <label htmlFor="movie-search" className="sr-only">
                         Search movies
@@ -142,7 +188,7 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
                         value={searchValue}
                         onChange={(event) => setSearchValue(event.target.value)}
                         placeholder="Search movies"
-                        className="w-36 bg-transparent text-xs text-white placeholder-slate-400 outline-none transition-[width] sm:w-48 group-focus-within:w-60"
+                        className="min-w-0 flex-1 bg-transparent text-xs text-white placeholder-slate-400 outline-none sm:w-48 sm:flex-none"
                     />
 
                     <button

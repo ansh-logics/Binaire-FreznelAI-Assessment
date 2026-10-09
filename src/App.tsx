@@ -7,6 +7,7 @@ import BrowsePage from './pages/BrowsePage'
 import MovieDetailsPage from './pages/MovieDetailsPage'
 import AuthPage from './pages/AuthPage'
 import NetworkStatus from './components/NetworkStatus'
+import InfoPage from './pages/InfoPage'
 
 type Route =
   | { page: 'home' }
@@ -14,6 +15,8 @@ type Route =
   | { page: 'details'; movieId: number }
   | { page: 'auth'; mode: 'signin' | 'signup' }
   | { page: 'my-list' }
+  | { page: 'about' }
+  | { page: 'support' }
 
 const getRoute = (): Route => {
   const detailMatch = window.location.hash.match(/^#movie-(\d+)$/)
@@ -31,6 +34,13 @@ const getRoute = (): Route => {
 
   if (window.location.hash.startsWith('#browse')) {
     return { page: 'browse' }
+  }
+  if (window.location.hash === '#about') {
+    return { page: 'about' }
+  }
+
+  if (window.location.hash === '#support') {
+    return { page: 'support' }
   }
 
   if (window.location.hash.startsWith('#auth')) {
@@ -83,6 +93,8 @@ function App() {
       )}
       {route.page === 'auth' && <AuthPage mode={route.mode} />}
       {route.page === 'my-list' && <MyListPage />}
+      {route.page === 'about' && <InfoPage page="about" />}
+      {route.page === 'support' && <InfoPage page="support" />}
     </div>
   )
 }
