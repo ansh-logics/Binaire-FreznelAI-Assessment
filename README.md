@@ -6,4 +6,4 @@ The reference UI was from Steam but the required data was from TMDB, so I used t
 
 The app has movie discovery, search, genre filtering, carousel, lazy loading, pagination, movie details, Firebase authentication, My List and offline cached data.
 
-[My solution notes](./SOLUTION.md)
+[My solution notes](./Solution.md)
