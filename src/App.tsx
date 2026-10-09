@@ -1,17 +1,26 @@
 import { useEffect, useState } from 'react'
 import Header from './components/Layout/Header'
 import StoreToolbar from './components/Layout/StoreToolbar'
+import MyListPage from './pages/MyListPage'
 import HomePage from './pages/HomePage'
 import BrowsePage from './pages/BrowsePage'
 import MovieDetailsPage from './pages/MovieDetailsPage'
+import AuthPage from './pages/AuthPage'
+import NetworkStatus from './components/NetworkStatus'
 
 type Route =
   | { page: 'home' }
   | { page: 'browse' }
   | { page: 'details'; movieId: number }
+  | { page: 'auth'; mode: 'signin' | 'signup' }
+  | { page: 'my-list' }
 
 const getRoute = (): Route => {
   const detailMatch = window.location.hash.match(/^#movie-(\d+)$/)
+
+  if (window.location.hash === '#my-list') {
+    return { page: 'my-list' }
+  }
 
   if (detailMatch) {
     return {
@@ -22,6 +31,16 @@ const getRoute = (): Route => {
 
   if (window.location.hash.startsWith('#browse')) {
     return { page: 'browse' }
+  }
+
+  if (window.location.hash.startsWith('#auth')) {
+    const query = window.location.hash.split('?')[1] ?? ''
+    const params = new URLSearchParams(query)
+
+    return {
+      page: 'auth',
+      mode: params.get('mode') === 'signup' ? 'signup' : 'signin',
+    }
   }
 
   return { page: 'home' }
@@ -45,6 +64,8 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <Header />
+      <NetworkStatus />
+
       <StoreToolbar
         onSearch={(query) => {
           const normalizedQuery = query.trim()
@@ -60,6 +81,8 @@ function App() {
       {route.page === 'details' && (
         <MovieDetailsPage movieId={route.movieId} />
       )}
+      {route.page === 'auth' && <AuthPage mode={route.mode} />}
+      {route.page === 'my-list' && <MyListPage />}
     </div>
   )
 }

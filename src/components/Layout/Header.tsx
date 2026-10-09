@@ -1,6 +1,12 @@
 import React from 'react'
-
+import useAuth from '../../hooks/useAuth'
 const Header: React.FC = () => {
+    const { user, isLoading, logOut } = useAuth()
+
+    const handleLogOut = async () => {
+        await logOut()
+        window.location.hash = '#home'
+    }
     return (
         <header className="sticky top-0 z-50 w-full bg-[#171a21] text-[#b8b6b4] shadow-md">
             <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -54,24 +60,49 @@ const Header: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3 text-xs">
-                    <a
-                        href="#auth?mode=signup"
-                        className="inline-flex items-center gap-1.5 rounded-sm bg-[#5c7e10] px-3 py-1.5 font-medium text-white shadow-sm transition-all hover:bg-[#79a317] hover:shadow-[0_0_10px_rgba(121,163,23,0.4)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#79a317]"
-                    >
-                        Create Account
-                    </a>
-                    <a
-                        href="#auth?mode=signin"
-                        className="rounded px-2.5 py-1 text-[#b8b6b4] transition hover:text-white active:text-[#66c0f4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
-                    >
-                        login
-                    </a>
+                    {!isLoading &&
+                        (user ? (
+                            <>
+                                <a
+                                    href="#auth?mode=signin"
+                                    className="rounded px-2.5 py-1 text-[#b8b6b4] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                                >
+                                    Account
+                                </a>
+
+                                <button
+                                    type="button"
+                                    onClick={handleLogOut}
+                                    className="rounded px-2.5 py-1 text-[#b8b6b4] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                                >
+                                    Sign out
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <a
+                                    href="#auth?mode=signup"
+                                    className="inline-flex items-center rounded-sm bg-[#5c7e10] px-3 py-1.5 font-medium text-white transition hover:bg-[#79a317] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#79a317]"
+                                >
+                                    Create Account
+                                </a>
+
+                                <a
+                                    href="#auth?mode=signin"
+                                    className="rounded px-2.5 py-1 text-[#b8b6b4] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                                >
+                                    Login
+                                </a>
+                            </>
+                        ))}
+
                     <span className="text-zinc-600">|</span>
+
                     <button
                         type="button"
-                        className="rounded px-2 py-1 text-[#8f98a0] transition hover:text-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
+                        className="rounded px-2 py-1 text-[#8f98a0] transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
                     >
-                        language ▼
+                        English ▼
                     </button>
                 </div>
             </div>

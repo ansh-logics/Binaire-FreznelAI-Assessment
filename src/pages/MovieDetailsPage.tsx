@@ -1,10 +1,21 @@
-import useMovieDetails from '../hooks/useMovieDetails'
+import useMovieDetails from '../hooks/useMovieDetails';
+import useWatchlist from '../hooks/useWatchlist';
 
 type MovieDetailsPageProps = {
     movieId: number
 }
 
 const MovieDetailsPage = ({ movieId }: MovieDetailsPageProps) => {
+    const { user, isSaved, toggleMovie } = useWatchlist()
+
+    const handleWatchlistToggle = () => {
+        if (!user) {
+            window.location.hash = '#auth?mode=signin'
+            return
+        }
+
+        toggleMovie(movieId)
+    }
     const { movie, isLoading, error } = useMovieDetails(movieId)
 
     if (isLoading) {
@@ -37,7 +48,7 @@ const MovieDetailsPage = ({ movieId }: MovieDetailsPageProps) => {
                 href="#home"
                 className="text-sm text-[#66c0f4] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#66c0f4]"
             >
-                ← Back to store
+                ← Back to Movies
             </a>
 
             <article className="mt-6 overflow-hidden rounded bg-[#16202d] shadow-xl">
@@ -76,6 +87,17 @@ const MovieDetailsPage = ({ movieId }: MovieDetailsPageProps) => {
                                 </span>
                             )}
                         </div>
+                        <button
+                            type="button"
+                            onClick={handleWatchlistToggle}
+                            aria-pressed={isSaved(movie.id)}
+                            className={`mt-5 rounded px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${isSaved(movie.id)
+                                ? 'bg-sky-500 text-slate-950 hover:bg-sky-400'
+                                : 'bg-[#2a475e] text-white hover:bg-[#3d6c9e]'
+                                }`}
+                        >
+                            {isSaved(movie.id) ? '✓ Saved to My List' : '+ Save to My List'}
+                        </button>
 
                         <ul className="mt-4 flex flex-wrap gap-2">
                             {movie.genres.map((genre) => (

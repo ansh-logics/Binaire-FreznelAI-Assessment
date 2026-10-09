@@ -17,7 +17,7 @@ const StoreToolbar: React.FC<StoreToolbarProps> = ({ onSearch }) => {
         { label: 'GENRES', href: '#browse' },
         { label: 'TOP RATED', href: '#browse?tab=topRated' },
         { label: 'UPCOMING', href: '#browse?tab=upcoming' },
-        { label: 'MY LIST', href: '#auth?mode=signin' },
+        { label: 'MY LIST', href: '#my-list' },
     ]
 
     return (
