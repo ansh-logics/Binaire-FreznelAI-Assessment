@@ -15,7 +15,7 @@ const HomePage = () => {
         <div id="store-home" className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             {isLoading && (
                 <div role="status" className="my-8 flex justify-center text-sm text-[#66c0f4]">
-                    Loading Steam Store...
+                    Loading Movies...
                 </div>
             )}
 
